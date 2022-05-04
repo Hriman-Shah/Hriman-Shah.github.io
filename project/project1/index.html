@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Hriman Shah" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Social And Behavioral Factors Affecting COVID-19 Transmissibility</title>
+    <meta name="generator" content="Hugo 0.98.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project1/">Social And Behavioral Factors Affecting COVID-19 Transmissibility</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="title-and-introduction" class="section level2">
+<h2>Title and Introduction</h2>
+<p><em>The main purpose of this project is to evaluate the impact of social and behavioral factors on COVID-19 transmissibility. In order to accomplish this, we looked at various population statistics, health statistics, dietary factors, COVID-19 positive cases, and COVID-19 tests administered in different countries around the world in the year 2020. The first dataset describing different health indicators, such as access to hand washing facilities and sanitation services, along with general population data, such as the urban and rural population percentage, unemployment percentage, and the percentage of the population above the age of 65 were obtained from the ‘Health Nutrition and Population Statistics’ dataset on the World Bank website. The alcohol consumption, obesity rate, undernourishment rate, confirmed COVID-19 case rate, death due to COVID rate, and total population of each country came from Kaggle. The third dataset describing the total daily COVID-19 tests administered in different countries around the world was obtained from the ‘Our World in Data’ website. These datasets are particularly interesting to us because social and behavioral factors described in these datasets shape the everyday life of people and thus will no doubt impact the disease prevalence of diseases like COVID-19 around the world. Some interesting trends we expect are a positive correlation between the percentage of elderly population in a country and the death due to COVID-19 rate, and we also expect health conditions like obesity and undernourishment to be positively correlated with COVID-19 occurrence.</em></p>
+</div>
+<div id="uploading-all-three-datasets-and-calling-the-tidyverse-package" class="section level2">
+<h2>Uploading all three datasets and calling the tidyverse package</h2>
+<pre class="r"><code># Call the package &#39;tidyverse&#39; 
+library(tidyverse)
+
+# Call the package &#39;readr&#39; and then import the csv for the &#39;Healthstats&#39; dataset into the workspace renaming it to &#39;countryhealthinfo&#39; 
+library(readr)
+countryhealthinfo &lt;- read_csv(&quot;HealthStats.csv&quot;)
+# Take a quick look at the &#39;countryhealthinfo&#39; dataset
+glimpse(countryhealthinfo)</code></pre>
+<pre><code>## Rows: 11,443
+## Columns: 5
+## $ `Series Name`   &lt;chr&gt; &quot;Urban population (% of total population)&quot;, &quot;Urban pop…
+## $ `Series Code`   &lt;chr&gt; &quot;SP.URB.TOTL.IN.ZS&quot;, &quot;SP.URB.TOTL.IN.ZS&quot;, &quot;SP.URB.TOTL…
+## $ `Country Name`  &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Africa Eastern and Southern&quot;, &quot;Africa …
+## $ `Country Code`  &lt;chr&gt; &quot;AFG&quot;, &quot;AFE&quot;, &quot;AFW&quot;, &quot;ALB&quot;, &quot;DZA&quot;, &quot;ASM&quot;, &quot;AND&quot;, &quot;AGO&quot;…
+## $ `2020 [YR2020]` &lt;chr&gt; &quot;26.026&quot;, &quot;36.7833061490919&quot;, &quot;47.8486254352506&quot;, &quot;62.…</code></pre>
+<pre class="r"><code>#Import the csv for the &#39;Food_Supply_kcal_Data&#39; dataset into the workspace renaming it to &#39;diet2020&#39;
+diet2020 &lt;- read_csv(&quot;Food_Supply_kcal_Data.csv&quot;)
+# Take a quick look at the &#39;diet2020&#39; dataset
+glimpse(diet2020)</code></pre>
+<pre><code>## Rows: 170
+## Columns: 32
+## $ Country                        &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Albania&quot;, &quot;Algeria&quot;, &quot;A…
+## $ `Alcoholic Beverages`          &lt;dbl&gt; 0.0000, 0.9120, 0.0896, 1.9388, 2.3041,…
+## $ `Animal Products`              &lt;dbl&gt; 4.7774, 16.0930, 6.0326, 4.6927, 15.367…
+## $ `Animal fats`                  &lt;dbl&gt; 0.8504, 1.0591, 0.1941, 0.2644, 1.5429,…
+## $ `Aquatic Products, Other`      &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ `Cereals - Excluding Beer`     &lt;dbl&gt; 37.1186, 16.2107, 25.0112, 18.3521, 13.…
+## $ Eggs                           &lt;dbl&gt; 0.1501, 0.8091, 0.4181, 0.0441, 0.2057,…
+## $ `Fish, Seafood`                &lt;dbl&gt; 0.0000, 0.1471, 0.1195, 0.8372, 1.7280,…
+## $ `Fruits - Excluding Wine`      &lt;dbl&gt; 1.4757, 3.8982, 3.1805, 2.3133, 3.6824,…
+## $ Meat                           &lt;dbl&gt; 1.2006, 3.8688, 1.2543, 2.9302, 7.0356,…
+## $ `Milk - Excluding Butter`      &lt;dbl&gt; 2.4512, 9.9441, 3.9869, 0.5067, 4.6904,…
+## $ Miscellaneous                  &lt;dbl&gt; 0.0250, 0.0588, 0.1045, 0.0661, 0.3086,…
+## $ Offals                         &lt;dbl&gt; 0.1251, 0.2648, 0.0597, 0.1102, 0.1646,…
+## $ Oilcrops                       &lt;dbl&gt; 0.1751, 1.0886, 0.2688, 1.0795, 0.5966,…
+## $ Pulses                         &lt;dbl&gt; 0.5003, 0.8091, 1.0900, 1.4981, 0.4526,…
+## $ Spices                         &lt;dbl&gt; 0.1001, 0.0000, 0.1195, 0.0000, 0.3497,…
+## $ `Starchy Roots`                &lt;dbl&gt; 0.3252, 1.2651, 1.9262, 12.6239, 0.8434…
+## $ Stimulants                     &lt;dbl&gt; 0.0750, 0.2501, 0.1493, 0.0441, 0.4937,…
+## $ `Sugar Crops`                  &lt;dbl&gt; 0.0000, 0.0000, 0.0000, 0.0000, 0.0000,…
+## $ `Sugar &amp; Sweeteners`           &lt;dbl&gt; 2.2261, 3.4422, 3.9869, 2.7539, 5.8218,…
+## $ Treenuts                       &lt;dbl&gt; 0.1251, 0.3972, 0.2240, 0.0000, 0.0823,…
+## $ `Vegetal Products`             &lt;dbl&gt; 45.2476, 33.9070, 43.9749, 45.3184, 34.…
+## $ `Vegetable Oils`               &lt;dbl&gt; 2.3012, 2.8244, 5.7638, 4.2741, 4.6904,…
+## $ Vegetables                     &lt;dbl&gt; 0.7504, 2.7508, 2.0457, 0.3525, 1.2960,…
+## $ Obesity                        &lt;dbl&gt; 4.5, 22.3, 26.6, 6.8, 19.1, 28.5, 20.9,…
+## $ Undernourished                 &lt;chr&gt; &quot;29.8&quot;, &quot;6.2&quot;, &quot;3.9&quot;, &quot;25&quot;, NA, &quot;4.6&quot;, …
+## $ Confirmed                      &lt;dbl&gt; 0.142134196, 2.967300916, 0.244897085, …
+## $ Deaths                         &lt;dbl&gt; 0.0061857789, 0.0509513742, 0.006558153…
+## $ Recovered                      &lt;dbl&gt; 0.123373921, 1.792635659, 0.167572198, …
+## $ Active                         &lt;dbl&gt; 0.0125744965, 1.1237138830, 0.070766733…
+## $ Population                     &lt;dbl&gt; 38928000, 2838000, 44357000, 32522000, …
+## $ `Unit (all except Population)` &lt;chr&gt; &quot;%&quot;, &quot;%&quot;, &quot;%&quot;, &quot;%&quot;, &quot;%&quot;, &quot;%&quot;, &quot;%&quot;, &quot;%&quot;,…</code></pre>
+<pre class="r"><code>#Import the csv for the &#39;total-tests-for-covid-19&#39; dataset into the workspace renaming it to &#39;totaltests&#39;
+totaltests &lt;- read_csv(&quot;total-tests-for-covid-19.csv&quot;)
+# Take a quick look at the &#39;totaltests&#39; dataset
+glimpse(totaltests)</code></pre>
+<pre><code>## Rows: 69,996
+## Columns: 5
+## $ Entity               &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Afghanistan&quot;, &quot;Albania&quot;, &quot;Albania…
+## $ Code                 &lt;chr&gt; &quot;AFG&quot;, &quot;AFG&quot;, &quot;ALB&quot;, &quot;ALB&quot;, &quot;ALB&quot;, &quot;ALB&quot;, &quot;ALB&quot;, …
+## $ Day                  &lt;date&gt; 2022-01-29, 2022-02-26, 2020-02-25, 2020-02-26, …
+## $ total_tests          &lt;dbl&gt; 853003, 889430, 8, 13, 17, 18, 26, 29, 31, 36, 42…
+## $ `142601-annotations` &lt;chr&gt; NA, NA, &quot;tests performed&quot;, &quot;tests performed&quot;, &quot;te…</code></pre>
+<p><em>In this code chunk, we simply import the csv files of the three datasets we intend to work with and take a quick look at them with the ‘glimpse’ function.</em></p>
+</div>
+<div id="tidying-the-countryhealthinfo-dataset-and-data-wrangling-with-it" class="section level2">
+<h2>Tidying the ‘countryhealthinfo’ dataset and data wrangling with it</h2>
+<pre class="r"><code># Overwrite the &#39;countryhealthinfo&#39; dataset so that the values contained in the &#39;2020 [YR2020]&#39; column show up as numeric instead of categorical and call this new column &#39;values&#39;. Then, remove the old column &#39;2020 [YR2020]&#39; using select()
+countryhealthinfo &lt;- countryhealthinfo %&gt;% mutate(values = as.numeric(`2020 [YR2020]`)) %&gt;% select(-`2020 [YR2020]`)
+
+
+#Make a new dataset called &#39;countryhealthstats&#39; by tidying the info in the &#39;countryhealthinfo&#39; dataset by using pivot_wider to ensure that each variable under the &#39;Series Name&#39; column gets a distinct column of its own
+countryhealthstats &lt;- countryhealthinfo %&gt;% select(-`Series Code`) %&gt;% na.omit %&gt;% pivot_wider(names_from = `Series Name`, values_from = `values`)
+
+#Rewrite the &#39;countryhealthstats&#39; dataset to include only the variables of interest
+countryhealthstats &lt;- countryhealthstats %&gt;% select(`Country Name`, `Urban population (% of total population)`, `Unemployment, total (% of total labor force)`, `Rural population (% of total population)`, `Population ages 65 and above (% of total population)`, `People with basic handwashing facilities including soap and water (% of population)`, `People using at least basic sanitation services (% of population)` )
+
+#Rename the variables so that they are easier to work with
+ countryhealthstats &lt;- countryhealthstats %&gt;% rename ( `Country`= `Country Name`, &#39;UrbanPop%&#39; = `Urban population (% of total population)`, &#39;unemployment%&#39;= `Unemployment, total (% of total labor force)`,&#39;RuralPop%&#39; = `Rural population (% of total population)`, &#39;Age65above%&#39; = `Population ages 65 and above (% of total population)`, &#39;Handwashingfacilities%&#39; = `People with basic handwashing facilities including soap and water (% of population)`, &#39;SanitationServices%&#39; = `People using at least basic sanitation services (% of population)`)</code></pre>
+<p><em>The countryhealthinfo dataset is not tidy as all the variables do not have their own distinct separate columns. The variables, instead of being their own columns, are part of a column called ‘Series Name’. So, in this code chunk, we moved the different variables from the ‘Series Name’ column to separate columns of their own using pivot_wider, thus tidying the dataset. However, before we did that, the values associated with each of the variables were supposed to be a numeric value but were listed as a character instead, so before tidying the dataset, we made sure to change the variable type of the column containing the values for each of these variables from categorical to numeric. Finally, we eliminated extraneous variables from the tidied dataset and kept only the variables relevant to our project, and then renamed those variables to make them easier to work with.</em></p>
+</div>
+<div id="data-wrangling-with-the-totaltests-and-diet2020-dataset" class="section level2">
+<h2>Data wrangling with the ‘totaltests’ and ‘diet2020’ dataset</h2>
+<pre class="r"><code>#Make a new object called &#39;yearlytests2020&#39; which only contains the total COVID-19 tests performed for each country in the year 2020
+yearlytests2020&lt;- totaltests %&gt;% filter(grepl(&quot;2020&quot;, Day)) %&gt;% group_by(Entity) %&gt;% summarize(total_yearly_tests=sum(total_tests))
+
+
+#Rewrite the &#39;diet2020&#39; dataset to include only the variables of interest and rename certain variables to more accurately represent what they mean
+diet2020 &lt;- diet2020 %&gt;% select(Country, `Alcoholic Beverages`, Obesity, Undernourished, Confirmed, Deaths, Population ) %&gt;% rename(&#39;Confirmed%&#39;=Confirmed, &#39;Death%&#39;=Deaths)</code></pre>
+<p><em>For our third dataset, we noticed that we were given daily values of covid-19 tests performed in each country from dates ranging from 2020-2022. However, we were only interested in the total COVID-19 tests performed in these countries in the year 2020. For this reason, we used data wrangling to first filter by only dates in 2020, then grouped by country, and then summed up the daily tests performed in each country in 2020 using the summarize() function in order to get the total tests performed in each country in the year 2020. Our second dataset ‘diet2020’ contained extraneous variables so only the variables relevant to our project were retained using the select() function and certain variables were renamed to more accurately represent what they mean.</em></p>
+</div>
+<div id="looking-at-identifiers-in-the-three-datasets" class="section level2">
+<h2>Looking at Identifiers in the three datasets</h2>
+<pre class="r"><code>#Take a quick look at the &#39;countryhealthstats&#39; dataset and note the number of observations and unique IDs
+glimpse(countryhealthstats)</code></pre>
+<pre><code>## Rows: 260
+## Columns: 7
+## $ Country                  &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Africa Eastern and Southern&quot;,…
+## $ `UrbanPop%`              &lt;dbl&gt; 26.02600, 36.78331, 47.84863, 62.11200, 73.73…
+## $ `unemployment%`          &lt;dbl&gt; 11.710000, 7.563187, 6.774914, 13.329000, 12.…
+## $ `RuralPop%`              &lt;dbl&gt; 73.97400, 63.21669, 52.15137, 37.88800, 26.26…
+## $ `Age65above%`            &lt;dbl&gt; 2.649070, 3.180069, 2.786648, 14.704581, 6.74…
+## $ `Handwashingfacilities%` &lt;dbl&gt; 38.11505, 23.28009, 28.36810, NA, 84.62598, N…
+## $ `SanitationServices%`    &lt;dbl&gt; 50.49965, 30.93106, 35.43719, 99.29879, 85.96…</code></pre>
+<pre class="r"><code>#Take a quick look at the &#39;diet2020&#39; dataset and note the number of observations and unique IDs
+glimpse(diet2020)</code></pre>
+<pre><code>## Rows: 170
+## Columns: 7
+## $ Country               &lt;chr&gt; &quot;Afghanistan&quot;, &quot;Albania&quot;, &quot;Algeria&quot;, &quot;Angola&quot;, &quot;…
+## $ `Alcoholic Beverages` &lt;dbl&gt; 0.0000, 0.9120, 0.0896, 1.9388, 2.3041, 1.4354, …
+## $ Obesity               &lt;dbl&gt; 4.5, 22.3, 26.6, 6.8, 19.1, 28.5, 20.9, 30.4, 21…
+## $ Undernourished        &lt;chr&gt; &quot;29.8&quot;, &quot;6.2&quot;, &quot;3.9&quot;, &quot;25&quot;, NA, &quot;4.6&quot;, &quot;4.3&quot;, &quot;&lt;…
+## $ `Confirmed%`          &lt;dbl&gt; 0.142134196, 2.967300916, 0.244897085, 0.0616874…
+## $ `Death%`              &lt;dbl&gt; 0.0061857789, 0.0509513742, 0.0065581532, 0.0014…
+## $ Population            &lt;dbl&gt; 38928000, 2838000, 44357000, 32522000, 98000, 45…</code></pre>
+<pre class="r"><code>#Take a quick look at the &#39;yearlytests2020&#39; dataset and note the number of observations and unique IDs
+glimpse(yearlytests2020)</code></pre>
+<pre><code>## Rows: 114
+## Columns: 2
+## $ Entity             &lt;chr&gt; &quot;Albania&quot;, &quot;Andorra&quot;, &quot;Antigua and Barbuda&quot;, &quot;Argen…
+## $ total_yearly_tests &lt;dbl&gt; 19827197, 1381944, 22948, 481127455, 63952145, 1444…</code></pre>
+<p><em>In this code chunk, we briefly looked at each of the three datasets and identified the number of observations, unique IDs, and identifiers that were in common and different between the three datasets. The ‘countryhealthstats’ dataset had 260 observations and one unique identifier which was ‘Country’ as that variable was used to uniquely identify each observation in the dataset. The ‘countryhealthstats’ dataset had only 1 identifier in common with the other 2 datatsets and this was ‘Country’, all the other identifiers it had (‘UrbanPop%’, ‘unemployment%’, ‘RuralPop%’, ‘Ages65above%’, ‘Handwashingfacilities%<code>,</code>SanitationServices%`) were not present in either of the other 2 datasets. The ’diet2020’ dataset had 170 observations and one unique identifier which was ‘Country’ as that variable was used to uniquely identify each observation in that dataset. The ‘diet2020’ dataset had only 1 identifier in common with the other 2 datasets and this was ‘Country’, all the other identifiers it had (‘Alcoholic Beverages’, Obesity, Undernourished, Confirmed, Deaths, Population) were not present in either of the other 2 datasets. The ‘yearlytests2020’ dataset had 114 observations and one unique identifier which was ‘Entity’ (aka Country) as that variable was used to uniquely identify each observation in that dataset. The ‘yearlytests2020’ dataset only had 1 variable in common with the other 2 datasets and this was ‘Entity’ (also known as ‘Country’ in the other 2 datasets) and the other variable in this dataset ‘total_yearly_tests’ was not present in the other 2 datasets. Once these observations were made, the three datasets were combined using the common ID of Country that they all had in the next code chunk.</em></p>
+</div>
+<div id="joining-all-three-datasets" class="section level2">
+<h2>Joining all three datasets</h2>
+<pre class="r"><code>#Join the &#39;diet2020&#39; dataset with the &#39;yearlytests2020&#39; dataset by the common key of &#39;country&#39; using inner_join to ensure that only the rows that have matching keys are kept. Call this joined dataset &#39;covidlife&#39;.
+covidlife &lt;- diet2020 %&gt;% inner_join(yearlytests2020, by = c(&quot;Country&quot; = &quot;Entity&quot;))
+
+#Determine the rows dropped from the &#39;yearlytests2020&#39; dataset when the merge was performed
+yearlytests2020 %&gt;% anti_join(diet2020, by = c(&quot;Entity&quot; = &quot;Country&quot;))</code></pre>
+<pre><code>## # A tibble: 11 × 2
+##    Entity        total_yearly_tests
+##    &lt;chr&gt;                      &lt;dbl&gt;
+##  1 Andorra                  1381944
+##  2 Bahrain                263199246
+##  3 Bhutan                  24968869
+##  4 Hong Kong               27128065
+##  5 Iran                   581970133
+##  6 Liechtenstein            1712769
+##  7 Russia                9853630507
+##  8 South Korea            518792889
+##  9 South Sudan              2955578
+## 10 Taiwan                   5525275
+## 11 United States        25408750175</code></pre>
+<pre class="r"><code>#Check to see if these rows were dropped in error and if the &#39;diet2020&#39; did had the same country names spelled differently or an alternate name of the same country
+diet2020 %&gt;% filter(grepl(&quot;And&quot;, Country) | grepl(&quot;Bahr&quot;, Country) | grepl(&quot;Bhu&quot;, Country) | grepl(&quot;Hong&quot;, Country) | grepl(&quot;Iran&quot;, Country) | grepl(&quot;Lie&quot;, Country) | grepl(&quot;Rus&quot;, Country) | grepl(&quot;Kor&quot;, Country)| grepl(&quot;South S&quot;, Country) | grepl(&quot;Tai&quot;, Country)| grepl(&quot;U.S.&quot;, Country) | grepl(&quot;United S&quot;, Country))</code></pre>
+<pre><code>## # A tibble: 6 × 7
+##   Country          `Alcoholic Bev…` Obesity Undernourished `Confirmed%` `Death%`
+##   &lt;chr&gt;                       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;                 &lt;dbl&gt;    &lt;dbl&gt;
+## 1 Iran (Islamic R…             0       25.5 4.9                 1.73     6.94e-2
+## 2 Korea, North                 1.43     7.1 47.8               NA       NA      
+## 3 Korea, South                 2.05     4.9 &lt;2.5                0.156    2.84e-3
+## 4 Russian Federat…             2.04    25.7 &lt;2.5                2.66     5.11e-2
+## 5 Taiwan*                      1.28    NA   3.5                 0.00391  3.81e-5
+## 6 United States o…             2.14    37.3 &lt;2.5                8.16     1.40e-1
+## # … with 1 more variable: Population &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Since we saw from the previous output that 5 countries didn&#39;t match from the &#39;diet2020&#39; dataset due to alternative names, for this reason we will recode those names in the &#39;diet2020&#39; dataset and merge again
+covidlife &lt;- diet2020 %&gt;%  mutate(Country_rev = recode(Country, 
+                               &#39;Iran (Islamic Republic of)&#39; = &#39;Iran&#39;, #Replaced the name United Kingdom with UK here
+                               &#39;Korea, South&#39; = &#39;South Korea&#39;, 
+                               &#39;Russian Federation&#39; = &#39;Russia&#39;, 
+                               &#39;United States of America&#39; = &#39;United States&#39;,
+                               &#39;Taiwan*&#39;= &#39;Taiwan&#39;)) %&gt;% inner_join(yearlytests2020, by=c(&quot;Country_rev&quot;=&quot;Entity&quot;)) %&gt;% select(-Country_rev)
+
+
+#Then join the merged dataset from above with the &#39;countryhealthstats&#39; dataset to form the &#39;covid2020&#39; dataset
+covid2020 &lt;- countryhealthstats %&gt;% inner_join(covidlife)
+
+#Determine the rows dropped from the &#39;covid2020&#39; dataset when the merge was performed 
+covidlife %&gt;% anti_join(countryhealthstats)</code></pre>
+<pre><code>## # A tibble: 6 × 8
+##   Country          `Alcoholic Bev…` Obesity Undernourished `Confirmed%` `Death%`
+##   &lt;chr&gt;                       &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;                 &lt;dbl&gt;    &lt;dbl&gt;
+## 1 Czechia                      4.90    28.5 &lt;2.5                9.61     1.60e-1
+## 2 Iran (Islamic R…             0       25.5 4.9                 1.73     6.94e-2
+## 3 Korea, South                 2.05     4.9 &lt;2.5                0.156    2.84e-3
+## 4 Slovakia                     2.84    22.4 3.4                 4.79     9.40e-2
+## 5 Taiwan*                      1.28    NA   3.5                 0.00391  3.81e-5
+## 6 United States o…             2.14    37.3 &lt;2.5                8.16     1.40e-1
+## # … with 2 more variables: Population &lt;dbl&gt;, total_yearly_tests &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Check to see if these rows were dropped in error and if the &#39;countryhealthstats&#39; did had the same country names spelled differently or an alternate name of the same country
+countryhealthstats %&gt;% filter(grepl(&quot;Czech&quot;, Country) | grepl(&quot;Iran&quot;, Country) | grepl(&quot;Kor&quot;, Country) | grepl(&quot;Slovak&quot;, Country) | grepl(&quot;Taiw&quot;, Country) | grepl(&quot;United S&quot;, Country))</code></pre>
+<pre><code>## # A tibble: 6 × 7
+##   Country `UrbanPop%` `unemployment%` `RuralPop%` `Age65above%` `Handwashingfa…`
+##   &lt;chr&gt;         &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Czech …        74.1            2.55        25.9         20.1                NA
+## 2 Iran, …        75.9           12.2         24.1          6.56               NA
+## 3 Korea,…        62.4            2.92        37.6          9.35               NA
+## 4 Korea,…        81.4            3.93        18.6         15.8                NA
+## 5 Slovak…        53.8            6.69        46.2         16.7                NA
+## 6 United…        82.7            8.05        17.3         16.6                NA
+## # … with 1 more variable: `SanitationServices%` &lt;dbl&gt;</code></pre>
+<pre class="r"><code>#Since we saw from the previous output that 5 countries didn&#39;t match from the &#39;countryhealthstats&#39; dataset due to alternative names, for this reason we will recode those names in the &#39;countryhealthstats&#39; dataset and merge again
+covid2020 &lt;- countryhealthstats %&gt;%  mutate(&#39;Country Name&#39;= recode(Country, 
+                               &#39;Iran, Islamic Rep.&#39; = &#39;Iran (Islamic Republic of)&#39;, 
+                               &#39;Korea, Rep.&#39; = &#39;Korea, South&#39;, 
+                               &#39;Slovak Republic&#39; = &#39;Slovakia&#39;,
+                               &#39;Czech Republic&#39;= &#39;Czechia&#39;,
+                               &#39;United States&#39; = &#39;United States of America&#39;)) %&gt;% inner_join(covidlife, by=c(&quot;Country Name&quot;=&quot;Country&quot;)) %&gt;% select(-&#39;Country Name&#39;)</code></pre>
+<p><em>To merge the 3 datasets, the ‘diet2020’ dataset was first combined with the ‘yearlytests2020’ dataset to form the ‘covidlife’ dataset. When this was done, it was noticed that 11 rows were dropped from the ‘yearlytests2020’ dataset, the smaller of the two datasets which were merged. To ensure that these rows weren’t just dropped in error because of alternative or misspelled country name in the ‘diet2020’ dataset, grepl was used with filter() to search for fragments of the country names of the dropped rows. By doing this search, it was found that 5 rows were dropped because of an alternative name for the same country. For this reason, we recoded the country names in one of the datasets and performed the merge again. This time instead of 11 rows being dropped from the ‘yearlytests2020’ dataset, only 6 rows were dropped from the ‘yearlytests2020’ dataset since these countries did not have a match in the ‘diet2020’ dataset. Once the ‘covidlife’ dataset was created, this dataset was merged again with the third dataset ‘countryhealthstats’to create the dataset ’covid2020’. This time 6 rows were dropped from the merged dataset, and the same process of checking if the rows were dropped in error was performed. It was found that 5 of those rows were dropped because of an alternative name for the same country. For this reason once again, we recoded the country names in one of the datasets and performed the merge again to get our final dataset ‘covid2020’ which has 107 observations. Overall, 7 observations were dropped from the smallest dataset when it was merged with the other two datasets and these observations did not have matches in the other two datasets even after alternative and misspelled names were checked for.</em></p>
+</div>
+<div id="data-wrangling-with-the-merged-dataset-covid2020" class="section level2">
+<h2>Data Wrangling with the merged dataset ‘covid2020’</h2>
+<pre class="r"><code># Take a quick look at the first 10 rows of the &#39;covid2020&#39; dataset using a &#39;kable&#39; table
+knitr::kable(head(covid2020, 10), col.names = gsub(&quot;[.]&quot;, &quot;  &quot;, names(covid2020)), align = &quot;lccccccccccccccc&quot;)</code></pre>
+<table>
+<colgroup>
+<col width="9%" />
+<col width="5%" />
+<col width="6%" />
+<col width="5%" />
+<col width="6%" />
+<col width="11%" />
+<col width="9%" />
+<col width="9%" />
+<col width="4%" />
+<col width="7%" />
+<col width="5%" />
+<col width="5%" />
+<col width="5%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Country</th>
+<th align="center">UrbanPop%</th>
+<th align="center">unemployment%</th>
+<th align="center">RuralPop%</th>
+<th align="center">Age65above%</th>
+<th align="center">Handwashingfacilities%</th>
+<th align="center">SanitationServices%</th>
+<th align="center">Alcoholic Beverages</th>
+<th align="center">Obesity</th>
+<th align="center">Undernourished</th>
+<th align="center">Confirmed%</th>
+<th align="center">Death%</th>
+<th align="center">Population</th>
+<th align="center">total_yearly_tests</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Albania</td>
+<td align="center">62.112</td>
+<td align="center">13.329</td>
+<td align="center">37.888</td>
+<td align="center">14.704581</td>
+<td align="center">NA</td>
+<td align="center">99.29879</td>
+<td align="center">0.9120</td>
+<td align="center">22.3</td>
+<td align="center">6.2</td>
+<td align="center">2.9673009</td>
+<td align="center">0.0509514</td>
+<td align="center">2838000</td>
+<td align="center">19827197</td>
+</tr>
+<tr class="even">
+<td align="left">Antigua and Barbuda</td>
+<td align="center">24.433</td>
+<td align="center">NA</td>
+<td align="center">75.567</td>
+<td align="center">9.332271</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">2.3041</td>
+<td align="center">19.1</td>
+<td align="center">NA</td>
+<td align="center">0.2938776</td>
+<td align="center">0.0071429</td>
+<td align="center">98000</td>
+<td align="center">22948</td>
+</tr>
+<tr class="odd">
+<td align="left">Argentina</td>
+<td align="center">92.111</td>
+<td align="center">11.460</td>
+<td align="center">7.889</td>
+<td align="center">11.366512</td>
+<td align="center">NA</td>
+<td align="center">NA</td>
+<td align="center">1.4354</td>
+<td align="center">28.5</td>
+<td align="center">4.6</td>
+<td align="center">4.3561474</td>
+<td align="center">0.1082266</td>
+<td align="center">45377000</td>
+<td align="center">481127455</td>
+</tr>
+<tr class="even">
+<td align="left">Armenia</td>
+<td align="center">63.313</td>
+<td align="center">21.206</td>
+<td align="center">36.687</td>
+<td align="center">11.802879</td>
+<td align="center">94.71515</td>
+<td align="center">93.93674</td>
+<td align="center">0.2274</td>
+<td align="center">20.9</td>
+<td align="center">4.3</td>
+<td align="center">5.6812246</td>
+<td align="center">0.1053451</td>
+<td align="center">2956000</td>
+<td align="center">63952145</td>
+</tr>
+<tr class="odd">
+<td align="left">Australia</td>
+<td align="center">86.241</td>
+<td align="center">6.460</td>
+<td align="center">13.759</td>
+<td align="center">16.213058</td>
+<td align="center">NA</td>
+<td align="center">99.99115</td>
+<td align="center">1.9783</td>
+<td align="center">30.4</td>
+<td align="center">&lt;2.5</td>
+<td align="center">0.1120253</td>
+<td align="center">0.0035295</td>
+<td align="center">25754000</td>
+<td align="center">1444657050</td>
+</tr>
+<tr class="even">
+<td align="left">Austria</td>
+<td align="center">58.748</td>
+<td align="center">5.360</td>
+<td align="center">41.252</td>
+<td align="center">19.204004</td>
+<td align="center">NA</td>
+<td align="center">99.97260</td>
+<td align="center">2.8161</td>
+<td align="center">21.9</td>
+<td align="center">&lt;2.5</td>
+<td align="center">4.7399821</td>
+<td align="center">0.0896792</td>
+<td align="center">8914000</td>
+<td align="center">364743932</td>
+</tr>
+<tr class="odd">
+<td align="left">Bangladesh</td>
+<td align="center">38.177</td>
+<td align="center">5.413</td>
+<td align="center">61.823</td>
+<td align="center">5.227004</td>
+<td align="center">58.40395</td>
+<td align="center">54.16470</td>
+<td align="center">0.0000</td>
+<td align="center">3.4</td>
+<td align="center">14.7</td>
+<td align="center">0.3166911</td>
+<td align="center">0.0048231</td>
+<td align="center">169809000</td>
+<td align="center">384073838</td>
+</tr>
+<tr class="even">
+<td align="left">Belarus</td>
+<td align="center">79.483</td>
+<td align="center">4.768</td>
+<td align="center">20.517</td>
+<td align="center">15.580196</td>
+<td align="center">NA</td>
+<td align="center">97.90432</td>
+<td align="center">3.2979</td>
+<td align="center">26.6</td>
+<td align="center">&lt;2.5</td>
+<td align="center">2.7408960</td>
+<td align="center">0.0189120</td>
+<td align="center">9375000</td>
+<td align="center">114835615</td>
+</tr>
+<tr class="odd">
+<td align="left">Belgium</td>
+<td align="center">98.079</td>
+<td align="center">5.550</td>
+<td align="center">1.921</td>
+<td align="center">19.254233</td>
+<td align="center">NA</td>
+<td align="center">99.48616</td>
+<td align="center">2.3089</td>
+<td align="center">24.5</td>
+<td align="center">&lt;2.5</td>
+<td align="center">6.2863222</td>
+<td align="center">0.1854277</td>
+<td align="center">11515000</td>
+<td align="center">745965329</td>
+</tr>
+<tr class="even">
+<td align="left">Bolivia</td>
+<td align="center">70.123</td>
+<td align="center">7.900</td>
+<td align="center">29.877</td>
+<td align="center">7.487205</td>
+<td align="center">26.93653</td>
+<td align="center">65.75642</td>
+<td align="center">0.7859</td>
+<td align="center">18.7</td>
+<td align="center">17.1</td>
+<td align="center">1.9524456</td>
+<td align="center">0.0924353</td>
+<td align="center">11633000</td>
+<td align="center">52068793</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>#Create a new variable called &#39;positivityrate&#39; which is a function of COVID-confirmed percentage of population, the population, and the total yearly tests
+covid2020 &lt;- covid2020 %&gt;% mutate(positivityrate = (( `Confirmed%`/100)*Population*100)/(total_yearly_tests))
+
+#Find the mean of this new variable &#39;positivityrate&#39;
+mean(covid2020$positivityrate, na.rm=T)</code></pre>
+<pre><code>## [1] 0.2351988</code></pre>
+<pre class="r"><code>#Find the standard deviation of this new variable &#39;positivityrate&#39;
+sd(covid2020$positivityrate, na.rm=T)</code></pre>
+<pre><code>## [1] 0.5400796</code></pre>
+<pre class="r"><code>#Find the mean of &#39;Ages65above%&#39;
+mean(covid2020$`Age65above%`, na.rm=T)</code></pre>
+<pre><code>## [1] 11.73131</code></pre>
+<pre class="r"><code>#Find the standard deviation of &#39;Ages65above%&#39;
+sd(covid2020$`Age65above%`, na.rm=T)</code></pre>
+<pre><code>## [1] 6.945741</code></pre>
+<pre class="r"><code>#Find the mean of &#39;SanitationServices%&#39;
+mean(covid2020$`SanitationServices%`, na.rm=T)</code></pre>
+<pre><code>## [1] 83.57905</code></pre>
+<pre class="r"><code>#Find the standard deviation of &#39;SanitationServices%&#39;
+sd(covid2020$`SanitationServices%`, na.rm=T)</code></pre>
+<pre><code>## [1] 24.19453</code></pre>
+<pre class="r"><code>#Find the mean of &#39;Handwashingfacilities%&#39;
+mean(covid2020$`Handwashingfacilities%`, na.rm=T)</code></pre>
+<pre><code>## [1] 56.34023</code></pre>
+<pre class="r"><code>#Find the standard deviation of &#39;Handwashingfacilities%&#39;
+sd(covid2020$`Handwashingfacilities%`, na.rm=T)</code></pre>
+<pre><code>## [1] 31.14442</code></pre>
+<pre class="r"><code># &#39;Undernourished&#39; is listed as a categorical variable, take a look at its categories
+table(covid2020$Undernourished)</code></pre>
+<pre><code>## 
+## &lt;2.5   10 10.3 10.4 10.6 10.7 11.3 12.2 13.3 13.4 14.5 14.7 15.2 16.1 17.1 17.5 
+##   42    1    1    1    1    1    1    1    1    2    1    1    1    1    1    1 
+##   19  2.5  2.6  2.7  2.8  2.9 20.3 20.6 26.4 27.3 27.9   29 29.4  3.2  3.4  3.5 
+##    1    1    1    1    1    1    1    1    1    1    1    1    1    1    2    1 
+##  3.6  3.7 36.8  4.3  4.6  4.8  4.9   41 44.4 46.7  5.5  5.6  5.7 51.3  6.2  7.1 
+##    2    1    1    1    1    2    1    1    1    1    2    1    1    1    2    1 
+##  7.8  7.9    8  8.5  8.7    9  9.5  9.7 
+##    1    2    1    2    1    2    1    1</code></pre>
+<pre class="r"><code>#So it seems as though the values given are actually numeric but the variable is listed as categorical, so first we will convert &#39;Undernourished&#39; back to numeric. Take note that the value &#39;&gt;2.5&#39; won&#39;t translate to numeric so it will have to be recoded as something else. Let&#39;s recode it &#39;&gt;2.5&#39; as &#39;2&#39; temporarily 
+covid2020 &lt;- covid2020 %&gt;% mutate(Undernourished_recoded = recode(Undernourished, &#39;&lt;2.5&#39; = &#39;2&#39;)) %&gt;% select(-Undernourished)
+
+#Now turn &#39;Undernourished_recoded&#39; into a numeric variable from the previous question and arrange in ascending order (Notice: using as.integer will round to the nearest whole number place)
+covid2020&lt;- covid2020 %&gt;% mutate(Undernourished_numeric = as.integer(Undernourished_recoded)) %&gt;% select(-Undernourished_recoded) %&gt;% arrange(Undernourished_numeric)
+
+#Now turn &#39;Undernourished_numeric&#39; back into a categorical variable using case_when() to set the category cut-offs
+covid2020 &lt;- covid2020 %&gt;%  mutate(UndernourishedCategories=case_when(
+    Undernourished_numeric %in% 2 ~ &quot;&lt; 2.5 %&quot;,
+    Undernourished_numeric %in% 3:100 ~ &quot; &gt; 2.5 %&quot;
+  )) %&gt;% select(-Undernourished_numeric) 
+
+#Determine the frequency of each category in &#39;UndernourishedCategories&#39; in this dataset
+covid2020 %&gt;% group_by(UndernourishedCategories) %&gt;%  summarize(Frequency=n()) %&gt;% filter(UndernourishedCategories!=&quot;NA&quot;)</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   UndernourishedCategories Frequency
+##   &lt;chr&gt;                        &lt;int&gt;
+## 1 &quot; &gt; 2.5 %&quot;                      59
+## 2 &quot;&lt; 2.5 %&quot;                       47</code></pre>
+<pre class="r"><code>#Turn &#39;Obesity&#39; into a categorical variable using case_when() to set the category cut-offs
+covid2020 &lt;- covid2020 %&gt;%  mutate(ObesityCategories=case_when(
+     Obesity  &gt; 23   ~ &quot;&gt; 23 %&quot;, 
+     Obesity &lt;= 23 ~ &quot;0-23 %&quot;
+  )) %&gt;% select(-Obesity) 
+
+# Determine the frequency of each category in &#39;ObesityCategories&#39; in this dataset
+covid2020 %&gt;% group_by(ObesityCategories) %&gt;%  summarize(Frequency=n()) %&gt;% filter(ObesityCategories!=&quot;NA&quot;)</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   ObesityCategories Frequency
+##   &lt;chr&gt;                 &lt;int&gt;
+## 1 &gt; 23 %                   53
+## 2 0-23 %                   54</code></pre>
+<p><em>We had a look at the first 10 rows in the ‘covid2020’ dataset with the kable function. Then, we mutated and overwrote our covid2020 dataset to create a positivity rate variable which was found by multiplying the percentage of confirmed cases and the population and dividing by the total yearly amount of tests. By using the mean function we found the mean positivity rate for all countries in this dataset to be about 0.2352% and the standard deviation to be about 0.5401%. The mean percentage of people in each country over the age of 65 was about 11.7313% and the standard deviation was about 6.9457%. The mean percentage of people in each country having access to sanitation services in each country was about 83.5791% and the standard deviation was about 24.1945%. Also, the mean percentage of people in each country having access to hand washing facilities was about 56.3402% and the standard deviation was about 31.1444%. The obesity rate and the undernourishment rate were made into categorical variables and summary statistics (frequencies) were computed for them. The countries in the covid2020 dataset were divided between less than or greater than 2.5% undernourishment with 59 countries having greater than 2.5% undernourishment and 47 countries having less than 2.5% undernourishment. The countries were also divided by having greater or less than a 23% obesity rate with 53 countries having an obesity rate greater than 23% while 54 countries had an obesity rate less than 23%.</em></p>
+</div>
+<div id="first-data-visualization-with-the-covid2020-dataset" class="section level2">
+<h2>First data visualization with the ‘covid2020’ dataset</h2>
+<pre class="r"><code>#Call the package &quot;ggpubr&quot;
+library(ggpubr)
+
+#Plot the percentage of population dead because of COVID-19 and the percentage of confirmed COVID-19 cases against the percentage of population that is ages 65 and above for different countries around the world
+covid2020 %&gt;% ggplot(aes(x= `Age65above%`, y= `Death%`)) + geom_point(aes(color=`Confirmed%`)) + scale_colour_continuous(&quot;% of Population with confirmed COVID-19 cases&quot;, type = &quot;viridis&quot;)  + scale_y_continuous(breaks=c(0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175))+ scale_x_continuous(breaks=c(0, 5, 10, 15, 20, 25)) + geom_smooth(method=lm, se=FALSE) + labs(title= &quot;Population COVID death rate and confirmed case rate vs. % of population composed of ages 65+&quot;, y=&quot;Percentage of the population dead due to COVID (%)&quot;, x=&quot;Percentage of population that is 65 years or older (%)&quot;) + theme(plot.title = element_text(size=10, face=&quot;bold&quot;),axis.title=element_text(size=9), legend.position=&quot;bottom&quot;) + stat_cor(method = &quot;pearson&quot;, label.x = 22, label.y = 0.045, r.accuracy = 0.001) + stat_cor(aes(x= `Age65above%`, y=`Confirmed%`), label.x = 22, label.y = 0.03, r.accuracy = 0.001 ) </code></pre>
+<pre><code>## `geom_smooth()` using formula &#39;y ~ x&#39;</code></pre>
+<p><img src="/project/project1_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><em>This scatterplot of the ‘covid2020’ dataset depicts the relationship between the percentage of the population dead due to COVID, seen on the y axis, and the percentage of the population over the age of 65, seen on the x axis. Each country is represented by a point with a different color determined by the percentage of its population with confirmed covid-19 cases. As seen by a p-value of less than 0.05 and the correlation coefficient of 0.562, there is a significant positive correlation between the percentage of population dead due to COVID-19 and the percentage of a country’s population over the age of 65. As seen by a p-value of less than 0.05 and the correlation coefficient of 0.557, there is a significant positive correlation between the percentage of population with confirmed COVID-19 cases and the percentage of a country’s population over the age of 65. This is concerning for countries with higher percentages of elderly people as that to be associated with more COVID-19 positive cases and deaths.</em></p>
+</div>
+<div id="second-data-visualization-with-the-covid2020-dataset" class="section level2">
+<h2>Second data visualization with the ‘covid2020’ dataset</h2>
+<pre class="r"><code>#Plot the COVID-19 positivity rate for different categories of Undernourished and Obese countries around the world
+covid2020[!is.na(covid2020$ObesityCategories) &amp; !is.na(covid2020$UndernourishedCategories),] %&gt;% ggplot(aes(x = UndernourishedCategories, y=positivityrate, fill = ObesityCategories)) +
+  geom_bar(stat = &quot;summary&quot;, fun = &quot;mean&quot;, position=&quot;dodge&quot;) +geom_errorbar(stat = &quot;summary&quot;, width=0.2,  fun.data = &quot;mean_se&quot;, position= position_dodge(0.9)) + scale_fill_manual(values=c(&quot;#56B4E9&quot;, &quot;#009E73&quot;), labels=c(&#39;Greater than 23% Obesity rate&#39;, &#39;Less than 23% Obesity rate&#39;), &quot;Categories of Obese Countries&quot;) + labs(title= &quot;Percentage of &quot;, y=&quot;Percentage of the population dead due to COVID (%)&quot;, x=&quot;Percentage of population that is 65 years or older (%)&quot;) + labs(title=&quot;COVID-19 positivity rate in respect to obesity and undernourishment for different countries&quot;, x=&quot;Different Categories of Undernourished Countries&quot;, y= &quot;COVID-19 Positivity Rate (%)&quot;) +  theme(plot.title = element_text(size=10, face=&quot;bold&quot;), axis.text=element_text(size=8)) + scale_y_continuous(breaks=c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)) + scale_x_discrete(labels = c(&#39;Greater than 2.5 % Undernourished&#39;, &#39;Less than 2.5 % Undernourished&#39;))</code></pre>
+<p><img src="/project/project1_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><em>This bar graph displays the relationship between COVID-19 positivity rate, undernourishment, and obesity rate. Countries were divided between greater or less than 2.5% undernourishment rate and having an obesity rate greater or less than 23%. Each bar represents the mean COVID-19 positivity rate for the countries under the specified conditions. As seen from the bar graph, the positivity rate for countries with greater than 2.5% undernourishment and greater than 23% obesity rate was drastically higher than the other groups demonstrating that lack of nourishment and higher obesity rates are correlated to COVID-19 positivity rates. However, the significance of this correlation can not be determined without further testing. </em></p>
+</div>
+<div id="member-contributions" class="section level2">
+<h2>Member Contributions</h2>
+<p><em>Introduction: Hriman and Nicholas</em></p>
+<p><em>Tidying: Hriman</em></p>
+<p><em>Joining and Merging: Hriman and Nicholas</em></p>
+<p><em>Wrangling: Nicholas</em></p>
+<p><em>Graphs: Hriman and Nicholas</em></p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p><em>‘Health Nutrition and Population Statistics’ (HealthStats.csv): <a href="https://databank.worldbank.org/source/health-nutrition-and-population-statistics">Website Link</a></em></p>
+<p><em>Context: This dataset was obtained from World Bank, and this dataset contained many population and health statistics for countries around the world.</em></p>
+<p><em>‘diet2020’ (Food_Supply_kcal_Data.csv): <a href="https://www.kaggle.com/datasets/mariaren/covid19-healthy-diet-dataset">Website Link</a></em></p>
+<p><em>Context: This dataset was obtained from Kaggle, and this dataset contained many dietary intake variables, health conditions associated with nutrition, and COVID-19 related data for countries around the world.</em></p>
+<p><em>‘totaltests’ (total-tests-for-covid-19.csv): <a href="https://ourworldindata.org/grapher/full-list-total-tests-for-covid-19?time=latest">Website Link</a></em></p>
+<p><em>Context: This dataset was obtained from the Our World in Data website and contained the total COVID-19 tests conducted daily in many countries around the world</em></p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

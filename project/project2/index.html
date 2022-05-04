@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Hriman Shah" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Social And Behavioral Factors Affecting COVID-19 Transmissibility (Project 2)</title>
+    <meta name="generator" content="Hugo 0.98.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project2/">Social And Behavioral Factors Affecting COVID-19 Transmissibility (Project 2)</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+
+
+<div id="title-and-introduction" class="section level2">
+<h2>Title and Introduction</h2>
+<p><em>The main purpose of this project is to evaluate the impact of social and behavioral factors on COVID-19 transmissibility. In order to accomplish this, we looked at the ‘covid2020’ dataset which is a merged dataset composed of the ‘countryhealthstats’ dataset from the World Bank website, ‘diet2020’ dataset from Kaggle, and ‘totaltests’ dataset from the ‘Our World in Data’ website. The variables contained in the ‘covid2020’ dataset are the % of urban population, the % of unemployment, the % of rural population, the % of people above the age of 65, the % of people with access to proper sanitation, alcohol intake as a percentage of total calories in diet, the % of obesity, the % of population with confirmed covid cases, the % of population dead due to COVID-19, the population, and the total yearly tests for different countries around the world. This dataset also has 102 observations with each observation representing a unique country. The ‘covid2020’ dataset is particularly interesting to us because social and behavioral factors described in this dataset shape the everyday life of people and thus will no doubt impact the disease prevalence of diseases like COVID-19 around the world. Some interesting trends we expect are a positive correlation between the percentage of elderly population in a country and the death due to COVID-19 rate, and we also expect health conditions like obesity to be positively correlated with COVID-19 occurrence. The ‘countryhealthstats’ dataset was tidied before it merged with the other two datasets to create the ‘covid2020’ dataset. In the ‘countryhealthstats’ dataset, we moved the different variables from the ‘Series Name’ column to separate columns of their own using pivot_wider, thus tidying the dataset. In this project, we also explore the dataset using PCA and clustering to view the different ways in which the countries are grouped or related. We also import a new dataset which reports the HDI of each country from the World Population Review Website and compare to see if the country clusters match the development status of the countries. Finally, we use classification to see if we can use the COVID-19 related variables in the dataset to predict the development status of the country and then we evaluate that classification model to check if it has any signs of overfitting.</em></p>
+</div>
+<div id="correlation-matrix-with-univariate-and-bivariate-graphs" class="section level2">
+<h2>Correlation Matrix with Univariate and Bivariate graphs</h2>
+<pre class="r"><code>#Call all the relevant packages
+library(tidyverse)
+library(cluster)
+library(factoextra)
+library(GGally)
+library(ggplot2)
+library(plotROC)
+library(caret)
+library(psych)
+
+# Call the &#39;covid2020&#39; dataset
+library(readr)
+covid2020 &lt;- read_csv(&quot;covid2020.csv&quot;) 
+
+
+#Remove the variable &#39;Handwash%&#39; from the &#39;covid2020&#39; dataset as it contains too many &#39;NA&#39; values
+covid2020 &lt;- covid2020 %&gt;% select(-`Handwash%`, -Undernourished)
+
+# Save a new dataset called &#39;covid2020num&#39; containing only the numeric variables from the &#39;covid2020&#39; dataset 
+covid2020num &lt;- covid2020 %&gt;% select(is.numeric)
+
+
+
+# Make a correlation matrix with bivariate and univariate graphs for the &#39;covid2020num&#39; dataset
+pairs.panels(covid2020num, 
+             method = &quot;pearson&quot;, # correlation coefficient method
+             hist.col = &quot;blue&quot;, # color of histogram 
+             smooth = FALSE, density = FALSE, ellipses = FALSE, cex.labels=2, cex.axis=1.5)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-1-1.png" width="1920" style="display: block; margin: auto;" /></p>
+<p><em>The needed packages were first called, then our ‘covid2020’ dataset from our last project was uploaded using the read_csv function. The ‘covid2020’ dataset included the country names and statistics about their population such as the urban population %, the confirmed cases, %, the amount of yearly tests, etc. We then selected only the numeric variables from our ‘covid2020’ dataset and saved it to ‘covid2020num’ and made a correlation matrix with bivariate and univariate graphs for its respective numeric variables. Technically, the UrbanPop% and the RuralPop% were the most correlated with a correlation coefficient of -1.00 but this was expected as they are complete opposite statistics. The confirmed case and death percentage were the second most correlated with a correlation coefficient of about .83 which makes sense as the death percentage due to covid19 is sure to be in high correspondence among those who had caught the virus with the lethality of covid19 around the world. Unemployment% and yearly_tests as well as Alcohol% and yearly_tests were tied for the least correlated pairs of variables with correlation coefficients of 0.01 and -0.01 respectively. This makes sense as one would expect these variables to have no relationship with each other.</em></p>
+</div>
+<div id="pca" class="section level2">
+<h2>PCA</h2>
+<pre class="r"><code>#Make a &#39;covid2020scaled&#39; dataset containing only scaled numeric variables with no missing values from the &#39;covid2020num&#39; dataset
+covid2020scaled &lt;- covid2020num %&gt;% scale %&gt;% as.data.frame() %&gt;% na.omit
+
+#Conduct a pca on the &#39;covid2020scaled&#39; dataset
+pca &lt;- covid2020scaled %&gt;% prcomp()
+
+# Visualize percentage of variances for each PC in a scree plot
+fviz_eig(pca, addlabels = TRUE, ylim = c(0, 70))</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-2-1.png" width="480" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Visualize the 5 top contributions of the variables to the PCs as a percentage
+  # Note the red dash line indicates the average contribution
+fviz_contrib(pca, choice = &quot;var&quot;, axes = 1, top = 5) # on PC1</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-2-2.png" width="480" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>fviz_contrib(pca, choice = &quot;var&quot;, axes = 2, top = 5) # on PC2</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-2-3.png" width="480" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Visualize the contributions of the variables to the PCs in a table
+get_pca_var(pca)$coord %&gt;% as.data.frame %&gt;% select(1:2)</code></pre>
+<pre><code>##                  Dim.1       Dim.2
+## UrbanPop%    0.8170718 -0.14462983
+## unemploy%    0.1548693 -0.10463804
+## RuralPop%   -0.8170718  0.14462983
+## 65above%     0.7842379  0.11313034
+## Sanitation%  0.8099983  0.01499984
+## Alcohol%     0.6207213  0.04661748
+## Obesity      0.8403316 -0.15867501
+## Confirmed%   0.7744871  0.19227217
+## Death%       0.7151574  0.20610430
+## Population  -0.2049740  0.82385372
+## yearly_test  0.1518711  0.84705073</code></pre>
+<pre class="r"><code># Visualize the contributions of the variables to the PCs in a correlation circle
+fviz_pca_var(pca, col.var = &quot;black&quot;, 
+             repel = TRUE) # Avoid text overlapping</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-2-4.png" width="480" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Visualize the individuals according to PC1 and PC2
+fviz_pca_ind(pca,
+             geom.ind = &quot;point&quot;, # show points only (nbut not &quot;text&quot;)
+             palette = c(&quot;#00AFBB&quot;, &quot;#E7B800&quot;, &quot;#FC4E07&quot;),
+             addEllipses = TRUE, # Concentration ellipses
+             legend.title = &quot;outcome&quot;
+             )</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-2-5.png" width="480" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Total Variation Explained by the 2 PCs
+44.4+14.2</code></pre>
+<pre><code>## [1] 58.6</code></pre>
+<p><em>In the code chunk, we first scaled the ‘covid2020num’ dataset and removed missing values to ready it for PCA analysis. Then, we conducted PCA on the scaled dataset. We visualized the percentage of variance explained by each PC. The first PC explained about 44.4% of the variation, the second PC explained about 14.2% of the variation, the third PC explains about 12.3% of the variation, and the fourth PC explains about 10% of the variation. Technically, we would need to include 4 dimensions to have at least 80% variance explained, but for visualization purposes we will be sticking 2 principal components since that is easy to visualize. We then visualized which were the top 5 variables contributing to each of the 2 principal components. The top 5 contributing variables to the first principle component are ‘Obesity’, ‘RuralPop%’, ‘UrbanPop%’, ‘Sanitation%’, and ‘65above%’, and all these 5 variables contributed around an equal amount to PC1 ranging from 10-15% contribution per variable. The top 5 contributing variables to the second principle component are ‘yearly_test’, ‘population’, ‘Death%’, ‘Confirmed%’, and ‘Obesity’, and here only ‘yearly_test’ and ‘Population’ contributed significantly to PC2 with each variable contributing around 40%, while the other 3 variables each had contributions below 5% to PC2. Based on the values of how each variable contributed to each PC, we determined what it would mean to score high in each PC. If a country were to score high in PC1, it would mean that the country has a high urban population %, a moderately high unemployment rate, a low rural population %, a high population of people above 65 years old, a high availability of sanitation facilities, a relatively high alcohol consumption %, a high obesity rate, a high % of COVID-19 confirmed cases, a high percentage of COVID deaths, a moderately low population, and moderate amount of COVID-19 tests conducted yearly compared to other countries. If a country were to score high in PC2, it would mean that they have a moderately low urban population %, moderately low employment %, moderately high rural population %, moderately high percentage of people above the 65, moderate availability of sanitation facilities, moderate consumption of alcoholic beverages, moderately high % of COVID-19 confirmed cases and deaths, very high population, and very high amount of COVID-19 tests conducted yearly. We then visualized the PCs in a correlation circle and in terms of where the individual countries lay. Overall, the 2 PCs displayed on the graph explained about 58.6% of the total variation.</em></p>
+</div>
+<div id="clustering" class="section level2">
+<h2>Clustering</h2>
+<pre class="r"><code># Prepare the data (drop the categorical variable &#39;Country&#39; because it has too many categories) for Gower dissimilarities 
+covid2020gow &lt;- covid2020 %&gt;%
+  select(-Country)
+
+
+# Apply &#39;gower&#39; metric to the &#39;covid2020gow&#39; dataset and save it as the matrix &#39;covid2020_gower&#39;
+covid2020_gower &lt;- daisy(covid2020gow, metric = &quot;gower&quot;) %&gt;%
+  # Save as a matrix
+  as.matrix
+
+#Determine the number of optimum clusters to run for &#39;pam&#39;
+ fviz_nbclust(covid2020_gower, pam, method = &quot;silhouette&quot;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Run pam clustering for &#39;covid2020_gower&#39; with 2 clusters
+ pam_results &lt;- pam(covid2020_gower, k = 2, diss = TRUE)
+ 
+#Have a look at the pam_results
+pam_results</code></pre>
+<pre><code>## Medoids:
+##      ID       
+## [1,] &quot;96&quot; &quot;96&quot;
+## [2,] &quot;63&quot; &quot;63&quot;
+## Clustering vector:
+##   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20 
+##   1   2   1   1   1   1   2   1   1   1   1   1   1   1   1   1   2   1   1   1 
+##  21  22  23  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40 
+##   1   1   1   1   1   1   1   1   2   1   1   1   1   1   2   1   2   1   1   2 
+##  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60 
+##   1   1   1   1   1   1   1   1   2   1   1   1   1   2   2   2   2   1   2   1 
+##  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80 
+##   1   1   2   2   2   2   1   1   2   1   1   2   1   1   1   2   1   1   1   2 
+##  81  82  83  84  85  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 
+##   1   2   1   1   1   1   2   1   1   1   2   2   1   1   2   1   1   1   1   1 
+## 101 102 
+##   2   2 
+## Objective function:
+##     build      swap 
+## 0.1297519 0.1249905 
+## 
+## Available components:
+## [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+## [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;</code></pre>
+<pre class="r"><code>#Determine the countries at the centers of each cluster
+covid2020[96,] %&gt;% select(Country)</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   Country
+##   &lt;chr&gt;  
+## 1 Ukraine</code></pre>
+<pre class="r"><code>covid2020[63,] %&gt;% select(Country)</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   Country   
+##   &lt;chr&gt;     
+## 1 Mozambique</code></pre>
+<pre class="r"><code>#Determine the silhouette width for running pam with 2 clusters
+pam_results$silinfo$avg.width</code></pre>
+<pre><code>## [1] 0.4362948</code></pre>
+<pre class="r"><code>#Now add the clustering results to the &#39;covid2020gow&#39; dataset and overwrite that dataset as &#39;covid_pam&#39;
+covid_pam &lt;- covid2020gow %&gt;%
+  mutate(cluster = as.factor(pam_results$clustering)) %&gt;% na.omit</code></pre>
+<p><em>First, we selected all variables besides the country variable and saved it as a new dataset called ‘covid2020gow’. We then calculated gower’s distance between all the observations with the daisy function and saved it as a matrix named ‘covid2020_gower’. Then, fviz_nbclust was used to find that the optimal number of clusters needed for our ‘covid2020_gower’ dataset if pam clustering was run on it. Based on the fviz_nbclust, 2 clusters were done for pam because 2 clusters had the highest average silhouette width on this graph. With this, PAM was performed on our ‘covid2020_gower’ dataset and saved to pam_results. Within pam_results, the center for cluster 1 was found to be Ukraine and the center of cluster 2 was found to be Mozambique. The silhouette width for running pam with 2 clusters was found to be about .436 which indcated that the structure was weak and could be artificial. The clustering results were then added to the ‘covid2020gow’ dataset and saved to the ‘covid_pam dataset’. </em></p>
+</div>
+<div id="pairwise-clustering-plot" class="section level2">
+<h2>Pairwise Clustering Plot</h2>
+<pre class="r"><code># Visualize the clusters by showing all pairwise combinations of variables colored by cluster assignment 
+ggpairs(covid_pam, columns = 1:11, aes(color = cluster))</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-4-1.png" width="1440" style="display: block; margin: auto;" />
+<em>We visualized the clusters by showing all pairwise combinations of variables colored by clusters from the ‘covid_pam’ dataset. The visualization shows the values for overall correlation and cluster-specific correlation between pairs of variables. The visualization also shows the distribution of values in the different clusters for 2 variables at a time in pairwise graphs.</em></p>
+</div>
+<div id="clustering-and-pca" class="section level2">
+<h2>Clustering and PCA</h2>
+<pre class="r"><code># Import the HDI dataset for different countries around the world
+HDI &lt;- read_csv(&quot;HDI.csv&quot;)
+
+# Inner join the covid2020 dataset with the HDI dataset and call the merged dataset &#39;covid2020hdi&#39;
+covid2020hdi &lt;- covid2020 %&gt;%
+  inner_join(HDI, by = c(&quot;Country&quot; = &quot;country&quot;)) %&gt;%
+  #Remove the variable &#39;pop2022&#39; from the merged dataset
+  select(!pop2022) %&gt;%
+  # Add a variable named &#39;development&#39; which has the value of &#39;developed&#39; if HDI &gt; 0.7 or the value of &#39;developing&#39; if HDI &lt; 0.7
+  mutate(development = ifelse(hdi &gt; .7, &quot;developed&quot;, NA)) %&gt;%
+  mutate(development = ifelse(is.na(development) &amp; hdi &lt; .7, &quot;developing&quot;, development))
+
+# Remove NA values from the &#39;covid2020hdi&#39; dataset
+covid2020hdi &lt;- covid2020hdi %&gt;%
+  na.omit()
+
+# Determine the number of optimum clusters for pam on the &#39;covid2020scaled&#39; dataset
+fviz_nbclust(covid2020scaled, pam, method=&quot;silhouette&quot;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Run pam with 2 clusters for the &#39;covid2020scaled&#39; dataset
+pam_results2  &lt;- covid2020scaled %&gt;%
+  pam(k = 2)
+
+#Have a look at the pam_results2
+pam_results2</code></pre>
+<pre><code>## Medoids:
+##    ID UrbanPop%  unemploy% RuralPop%   65above% Sanitation%   Alcohol%
+## 96 91  0.212998  0.2345297 -0.212998  0.7433827   0.5828775 -0.0143861
+## 63 59 -1.354486 -0.7760267  1.354486 -1.2682073  -1.9196184 -1.0260110
+##      Obesity Confirmed%     Death%  Population yearly_test
+## 96  0.618261  0.1490423  0.1048607 -0.09296293  -0.1377675
+## 63 -1.600466 -1.0446309 -0.9795512 -0.14656258  -0.2700055
+## Clustering vector:
+##   1   4   5   6   7   8   9  10  12  13  14  15  16  17  18  19  20  21  22  23 
+##   1   1   1   1   2   1   1   1   1   1   1   1   1   1   1   1   1   1   1   1 
+##  24  25  26  27  28  29  30  31  32  33  34  35  36  37  38  39  40  41  42  43 
+##   1   1   1   1   1   2   1   1   1   1   1   2   1   2   1   1   2   1   1   1 
+##  44  45  46  47  48  49  50  51  52  53  54  55  57  58  59  60  61  62  63  65 
+##   1   1   1   1   1   2   1   1   1   1   2   2   2   1   2   1   1   1   2   2 
+##  66  67  68  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85 
+##   2   1   1   2   1   1   2   1   1   1   2   1   1   1   2   1   2   1   1   1 
+##  86  87  88  89  90  91  92  93  94  95  96  97  98  99 100 101 102 
+##   1   2   1   1   1   1   2   1   1   2   1   1   1   1   1   2   2 
+## Objective function:
+##    build     swap 
+## 2.440543 2.440543 
+## 
+## Available components:
+##  [1] &quot;medoids&quot;    &quot;id.med&quot;     &quot;clustering&quot; &quot;objective&quot;  &quot;isolation&quot; 
+##  [6] &quot;clusinfo&quot;   &quot;silinfo&quot;    &quot;diss&quot;       &quot;call&quot;       &quot;data&quot;</code></pre>
+<pre class="r"><code>#Determine the countries at the centers of each cluster
+covid2020[96,] %&gt;% select(Country)</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   Country
+##   &lt;chr&gt;  
+## 1 Ukraine</code></pre>
+<pre class="r"><code>covid2020[63,] %&gt;% select(Country)</code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   Country   
+##   &lt;chr&gt;     
+## 1 Mozambique</code></pre>
+<pre class="r"><code># Add the clustering results to the &#39;covid2020scaled&#39; dataset
+covidscaled_pam &lt;- covid2020scaled %&gt;%
+  mutate(cluster = as.factor(pam_results2$clustering))
+
+
+
+# Visualize the clustering results on a PCA graph making sure to show the development status of the countries in each cluster 
+fviz_cluster(pam_results2, data = covid2020scaled, 
+             shape = as.factor(covid2020hdi$development)) +
+  geom_point(aes(shape = as.factor(covid2020hdi$development))) +
+  guides(shape = guide_legend(title = &quot;shape&quot;))</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Table showing the relation of clusters made to the development status of the countries
+table(covidscaled_pam$cluster, covid2020hdi$development)</code></pre>
+<pre><code>##    
+##     developed developing
+##   1        71          3
+##   2         3         20</code></pre>
+<pre class="r"><code>#Calculate accuracy 
+(71+20)/97</code></pre>
+<pre><code>## [1] 0.9381443</code></pre>
+<p><em>For this code chunk, we hoped to see how well our clusters matched the development status groups for the countries. To do this, we first imported the HDI dataset for different countries around the world. We then inner joined our ‘covid2020’ dataset with the HDI dataset by country names and kept all variables besides the pop2022 variable from the HDI dataset. We mutated the dataset by creating another variable called “development” in which countries with an hdi (human development index) score above .7 were classified as developed while countries with an hdi score below .7 were classified as developing. We then overwrote our ‘covid2020hdi’ dataset to exclude NA values. We utilized fvis_nbclust on our ‘covid2020scaled’ dataset from the PCA chunk of code above and found the optimal number of clusters needed for this scaled dataset was 2 as it had the highest average silhouette width. We then performed PAM on our ‘covid2020scaled’ dataset with a k value of 2 and the results were saved to pam_results2. Within pam_results2, the center for cluster 1 was found to be Ukraine and the center of cluster 2 was found to be Mozambique. We then mutated our ‘covid2020’ scaled dataset to include the clustering found from pam_results2 and called the variable cluster. We then visualized our clustering against our development variable using the fviz_cluster function in which the shapes represented the development variable while the color represented the cluster for each observation. We then used the table function to find the similarities between our development variable and clustering from our PAM and found that our clustering was about 93.8% accurate in determining the development status of each country.</em></p>
+</div>
+<div id="classification" class="section level2">
+<h2>Classification</h2>
+<pre class="r"><code>#For each country, assign the &#39;developed&#39; status a value of &#39;1&#39; and &#39;developing&#39; status a value of 0
+covid2020hdi &lt;- covid2020hdi %&gt;% mutate (actual = ifelse(hdi&gt; 0.7, 1, 0))
+
+# Add a new variable called &#39;positivityrate&#39; which is a function of the variables &#39;Confirmed%&#39;, &#39;Population&#39;, &#39;yearly_test&#39;
+covid2020hdi &lt;- covid2020hdi %&gt;% mutate(positivityrate = (( `Confirmed%`/100)*Population*100)/(yearly_test))
+
+# Use a glm model to create a fit which shows development status based on &#39;positivityrate&#39;, &#39;Confirmed%&#39;, and &#39;Death%&#39;
+fit &lt;- glm(actual ~ positivityrate + `Confirmed%` + `Death%`, data = covid2020hdi, family = &quot;binomial&quot;)
+summary(fit)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = actual ~ positivityrate + `Confirmed%` + `Death%`, 
+##     family = &quot;binomial&quot;, data = covid2020hdi)
+## 
+## Deviance Residuals: 
+##      Min        1Q    Median        3Q       Max  
+## -1.91122   0.00326   0.08566   0.42729   1.53137  
+## 
+## Coefficients:
+##                Estimate Std. Error z value Pr(&gt;|z|)  
+## (Intercept)     -0.8032     0.4303  -1.867   0.0620 .
+## positivityrate  -0.2896     0.8479  -0.342   0.7327  
+## `Confirmed%`     1.4288     0.5893   2.424   0.0153 *
+## `Death%`         7.3647    20.5058   0.359   0.7195  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 106.260  on 96  degrees of freedom
+## Residual deviance:  62.763  on 93  degrees of freedom
+## AIC: 70.763
+## 
+## Number of Fisher Scoring iterations: 7</code></pre>
+<pre class="r"><code># Calculate a predicted probability based on the fit
+log_covid2020hdi &lt;- covid2020hdi %&gt;% 
+  mutate(score = predict(fit, type = &quot;response&quot;),
+         predicted = ifelse(score &lt; 0.5, 0, 1))
+
+# Confusion matrix: compare true to predicted condition
+table(log_covid2020hdi$actual, log_covid2020hdi$predicted) %&gt;% addmargins</code></pre>
+<pre><code>##      
+##        0  1 Sum
+##   0   16  7  23
+##   1   10 64  74
+##   Sum 26 71  97</code></pre>
+<pre class="r"><code># Calculate accuracy based on confusion matrix
+80/97</code></pre>
+<pre><code>## [1] 0.8247423</code></pre>
+<pre class="r"><code># Visualize a ROC curve for the glm model 
+ROC &lt;- ggplot(log_covid2020hdi) + 
+  geom_roc(aes(d = actual, m = score), n.cuts = 0)
+ROC</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-6-1.png" width="288" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Calculate the area under the curve for the ROC model 
+calc_auc(ROC)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.8830787</code></pre>
+<p><em>The ‘covid2020hdi’ dataset was mutated by adding a new variable called “actual” in which countries with an hdi scores above .7, or developed countries, were given a value of 1 while countries with an hdi score below .7 (developing countries) were given a value of 0. Also, a new variable called positivityrate was added to the dataset in which positivityrate was a function of confirmed%, population, and yearly_test. We then used the glm function on our ‘covid2020hdi’ data to create a fit which demonstrated the development status based on positivityrate, confirmed%, and death%. This fit was then summarized and displayed. We then calculated a predicted probability based on the fit and saved it to ‘log_covid2020hdi’. We then used the table function to compare the predicted and true values. The accuracy was found to be about 82.5%. We then visualized a ROC curve for the glm model and saved it to ROC and found the area under the curve of the ROC model to be about 0.883 which indicated that the model was a good fit.</em></p>
+</div>
+<div id="cross-validation-with-the-k-fold-method" class="section level2">
+<h2>Cross-validation with the ‘k-fold’ method</h2>
+<pre class="r"><code>#Set Seed to save results
+set.seed(11) 
+
+# Choose number of folds
+k = 10 
+
+# Randomly order rows in the dataset
+data &lt;- covid2020hdi[sample(nrow(covid2020hdi)), ] 
+
+# Create k folds from the dataset
+folds &lt;- cut(seq(1:nrow(data)), breaks = k, labels = FALSE)
+
+# Use a for loop to get diagnostics for each test set
+diags_k &lt;- NULL
+
+for(i in 1:k){
+  # Create training and test sets
+  train &lt;- data[folds != i, ] # all observations except in fold i
+  test &lt;- data[folds == i, ]  # observations in fold i
+  
+  # Train model on training set (all but fold i)
+  fit &lt;- glm(actual ~ positivityrate + `Confirmed%` + `Death%`, data = train, family = &quot;binomial&quot;)
+  
+  # Test model on test set (fold i)
+  df &lt;- data.frame(
+    probability = predict(fit, newdata = test, type = &quot;response&quot;),
+    actual = test$actual)
+  
+  # Consider the ROC curve for the test dataset
+  ROC &lt;- ggplot(df) + 
+    geom_roc(aes(d = actual, m = probability, n.cuts = 0))
+
+  # Get diagnostics for fold i (AUC)
+  diags_k[i] &lt;- calc_auc(ROC)$AUC
+}
+
+
+# Average performance 
+mean(diags_k)</code></pre>
+<pre><code>## [1] 0.8810516</code></pre>
+<p><em>The k-fold cross-validation method was used to see if there were any signs of overfitting. The code chunk above cut the data into 10 folds in which 9 folds were used as the training set and the other 1 fold was used as the test set, this process was repeated till each fold was at least used once as the test set. The average performance obtained from the k-folds method indicated an average area the curve of 0.881 which is very close to the area under the curve of the original model which was 0.883. Thus, the model for the entire dataset does not show any signs of over-fitting as the average AUC of the k-folds cross-validation method almost matched the AUC of the original model, indicating that the model would remain a good fit even if any new data is added.</em></p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<p><em>‘Health Nutrition and Population Statistics’ (HealthStats.csv): <a href="https://databank.worldbank.org/source/health-nutrition-and-population-statistics">Website Link</a></em></p>
+<p><em>Context: This dataset was obtained from World Bank, and this dataset contained many population and health statistics for countries around the world.</em></p>
+<p><em>‘diet2020’ (Food_Supply_kcal_Data.csv): <a href="https://www.kaggle.com/datasets/mariaren/covid19-healthy-diet-dataset">Website Link</a></em></p>
+<p><em>Context: This dataset was obtained from Kaggle, and this dataset contained many dietary intake variables, health conditions associated with nutrition, and COVID-19 related data for countries around the world.</em></p>
+<p><em>‘totaltests’ (total-tests-for-covid-19.csv): <a href="https://ourworldindata.org/grapher/full-list-total-tests-for-covid-19?time=latest">Website Link</a></em></p>
+<p><em>Context: This dataset was obtained from the Our World in Data website and contained the total COVID-19 tests conducted daily in many countries around the world</em></p>
+<p><em>‘HDI’ (HDI.csv): <a href="https://worldpopulationreview.com/country-rankings/hdi-by-country">Website Link</a></em></p>
+<p><em>Context: The dataset shows the HDI values and population values of different countries around the world</em></p>
+</div>
+<div id="member-contributions" class="section level2">
+<h2>Member Contributions</h2>
+<p><em>Introduction: Hriman and Nicholas</em></p>
+<p><em>Correlation Matrix with Univariate and Bivariate graphs: Nicholas and Hriman</em></p>
+<p><em>PCA: Hriman and Nicholas</em></p>
+<p><em>Clustering: Hriman and Nicholas</em></p>
+<p><em>Pairwise Clustering Plot: Hriman and Nicholas</em></p>
+<p><em>PCA and Clustering: Nicholas and Hriman</em></p>
+<p><em>Classification: Hriman and Nicholas</em></p>
+<p><em>Cross-validation: Hriman and Nicholas</em></p>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>
