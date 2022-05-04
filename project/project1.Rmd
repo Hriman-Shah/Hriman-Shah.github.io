@@ -1,0 +1,248 @@
+---
+title: "Social And Behavioral Factors Affecting COVID-19 Transmissibility"
+author: "Hriman and Nicholas"
+date: "3/25/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Title and Introduction
+*The main purpose of this project is to evaluate the impact of social and behavioral factors on COVID-19 transmissibility. In order to accomplish this, we looked at various population statistics, health statistics, dietary factors, COVID-19 positive cases, and COVID-19 tests administered in different countries around the world in the year 2020. The first dataset describing different health indicators, such as access to hand washing facilities and sanitation services, along with general population data, such as the urban and rural population percentage, unemployment percentage, and the percentage of the population above the age of 65 were obtained from the 'Health Nutrition and Population Statistics' dataset on the World Bank website. The alcohol consumption, obesity rate, undernourishment rate, confirmed COVID-19 case rate, death due to COVID rate, and total population of each country came from Kaggle. The third dataset describing the total daily COVID-19 tests administered in different countries around the world was obtained from the 'Our World in Data' website. These datasets are particularly interesting to us because social and behavioral factors described in these datasets shape the everyday life of people and thus will no doubt impact the disease prevalence of diseases like COVID-19 around the world. Some interesting trends we expect are a positive correlation between the percentage of elderly population in a country and the death due to COVID-19  rate, and we also expect health conditions like obesity and undernourishment to be positively correlated with COVID-19 occurrence.*
+
+
+
+## Uploading all three datasets and calling the tidyverse package 
+
+```{r message=FALSE}
+
+# Call the package 'tidyverse' 
+library(tidyverse)
+
+# Call the package 'readr' and then import the csv for the 'Healthstats' dataset into the workspace renaming it to 'countryhealthinfo' 
+library(readr)
+countryhealthinfo <- read_csv("HealthStats.csv")
+# Take a quick look at the 'countryhealthinfo' dataset
+glimpse(countryhealthinfo)
+
+#Import the csv for the 'Food_Supply_kcal_Data' dataset into the workspace renaming it to 'diet2020'
+diet2020 <- read_csv("Food_Supply_kcal_Data.csv")
+# Take a quick look at the 'diet2020' dataset
+glimpse(diet2020)
+
+#Import the csv for the 'total-tests-for-covid-19' dataset into the workspace renaming it to 'totaltests'
+totaltests <- read_csv("total-tests-for-covid-19.csv")
+# Take a quick look at the 'totaltests' dataset
+glimpse(totaltests)
+
+```
+
+*In this code chunk, we simply import the csv files of the three datasets we intend to work with and take a quick look at them with the 'glimpse' function.*
+
+## Tidying the 'countryhealthinfo' dataset and data wrangling with it
+```{r warning = FALSE}
+# Overwrite the 'countryhealthinfo' dataset so that the values contained in the '2020 [YR2020]' column show up as numeric instead of categorical and call this new column 'values'. Then, remove the old column '2020 [YR2020]' using select()
+countryhealthinfo <- countryhealthinfo %>% mutate(values = as.numeric(`2020 [YR2020]`)) %>% select(-`2020 [YR2020]`)
+
+
+#Make a new dataset called 'countryhealthstats' by tidying the info in the 'countryhealthinfo' dataset by using pivot_wider to ensure that each variable under the 'Series Name' column gets a distinct column of its own
+countryhealthstats <- countryhealthinfo %>% select(-`Series Code`) %>% na.omit %>% pivot_wider(names_from = `Series Name`, values_from = `values`)
+
+#Rewrite the 'countryhealthstats' dataset to include only the variables of interest
+countryhealthstats <- countryhealthstats %>% select(`Country Name`, `Urban population (% of total population)`, `Unemployment, total (% of total labor force)`, `Rural population (% of total population)`, `Population ages 65 and above (% of total population)`, `People with basic handwashing facilities including soap and water (% of population)`, `People using at least basic sanitation services (% of population)` )
+
+#Rename the variables so that they are easier to work with
+ countryhealthstats <- countryhealthstats %>% rename ( `Country`= `Country Name`, 'UrbanPop%' = `Urban population (% of total population)`, 'unemployment%'= `Unemployment, total (% of total labor force)`,'RuralPop%' = `Rural population (% of total population)`, 'Age65above%' = `Population ages 65 and above (% of total population)`, 'Handwashingfacilities%' = `People with basic handwashing facilities including soap and water (% of population)`, 'SanitationServices%' = `People using at least basic sanitation services (% of population)`)
+
+```
+
+*The countryhealthinfo dataset is not tidy as all the variables do not have their own distinct separate columns. The variables, instead of being their own columns, are part of a column called 'Series Name'. So, in this code chunk, we moved the different variables from the 'Series Name' column to separate columns of their own using pivot_wider, thus tidying the dataset. However, before we did that, the values associated with each of the variables were supposed to be a numeric value but were listed as a character instead, so before tidying the dataset, we made sure to change the variable type of the column containing the values for each of these variables from categorical to numeric. Finally, we eliminated extraneous variables from the tidied dataset and kept only the variables relevant to our project, and then renamed those variables to make them easier to work with.*
+
+
+
+## Data wrangling with the 'totaltests' and 'diet2020' dataset
+
+```{r}
+#Make a new object called 'yearlytests2020' which only contains the total COVID-19 tests performed for each country in the year 2020
+yearlytests2020<- totaltests %>% filter(grepl("2020", Day)) %>% group_by(Entity) %>% summarize(total_yearly_tests=sum(total_tests))
+
+
+#Rewrite the 'diet2020' dataset to include only the variables of interest and rename certain variables to more accurately represent what they mean
+diet2020 <- diet2020 %>% select(Country, `Alcoholic Beverages`, Obesity, Undernourished, Confirmed, Deaths, Population ) %>% rename('Confirmed%'=Confirmed, 'Death%'=Deaths)
+
+```
+*For our third dataset, we noticed that we were given daily values of covid-19 tests performed in each country from dates ranging from 2020-2022. However, we were only interested in the total COVID-19 tests performed in these countries in the year 2020. For this reason, we used data wrangling to first filter by only dates in 2020, then grouped by country, and then summed up the daily tests performed in each country in 2020 using the summarize() function in order to get the total tests performed in each country in the year 2020. Our second dataset 'diet2020' contained extraneous variables so only the variables relevant to our project were retained using the select() function and certain variables were renamed to more accurately represent what they mean.*
+
+## Looking at Identifiers in the three datasets
+```{r warning = FALSE}
+
+#Take a quick look at the 'countryhealthstats' dataset and note the number of observations and unique IDs
+glimpse(countryhealthstats)
+#Take a quick look at the 'diet2020' dataset and note the number of observations and unique IDs
+glimpse(diet2020)
+#Take a quick look at the 'yearlytests2020' dataset and note the number of observations and unique IDs
+glimpse(yearlytests2020)
+
+
+```
+
+*In this code chunk, we briefly looked at each of the three datasets and identified the number of observations, unique IDs, and identifiers that were in common and different between the three datasets. The 'countryhealthstats' dataset had 260 observations and one unique identifier which was 'Country' as that variable was used to uniquely identify each observation in the dataset. The 'countryhealthstats' dataset had only 1 identifier in common with the other 2 datatsets and this was 'Country', all the other identifiers it had ('UrbanPop%', 'unemployment%', 'RuralPop%', 'Ages65above%', 'Handwashingfacilities%`, `SanitationServices%`) were not present in either of the other 2 datasets. The 'diet2020' dataset had 170 observations and one unique identifier which was 'Country' as that variable was used to uniquely identify each observation in that dataset. The 'diet2020' dataset had only 1 identifier in common with the other 2 datasets and this was 'Country', all the other identifiers it had ('Alcoholic Beverages', Obesity, Undernourished, Confirmed, Deaths, Population) were not present in either of the other 2 datasets. The 'yearlytests2020' dataset had 114 observations and one unique identifier which was 'Entity' (aka Country) as that variable was used to uniquely identify each observation in that dataset. The 'yearlytests2020' dataset only had 1 variable in common with the other 2 datasets and this was 'Entity' (also known as 'Country' in the other 2 datasets) and the other variable in this dataset 'total_yearly_tests' was not present in the other 2 datasets. Once these observations were made, the three datasets were combined using the common ID of Country that they all had in the next code chunk.*
+
+## Joining all three datasets 
+```{r message=FALSE}
+
+#Join the 'diet2020' dataset with the 'yearlytests2020' dataset by the common key of 'country' using inner_join to ensure that only the rows that have matching keys are kept. Call this joined dataset 'covidlife'.
+covidlife <- diet2020 %>% inner_join(yearlytests2020, by = c("Country" = "Entity"))
+
+#Determine the rows dropped from the 'yearlytests2020' dataset when the merge was performed
+yearlytests2020 %>% anti_join(diet2020, by = c("Entity" = "Country"))
+
+#Check to see if these rows were dropped in error and if the 'diet2020' did had the same country names spelled differently or an alternate name of the same country
+diet2020 %>% filter(grepl("And", Country) | grepl("Bahr", Country) | grepl("Bhu", Country) | grepl("Hong", Country) | grepl("Iran", Country) | grepl("Lie", Country) | grepl("Rus", Country) | grepl("Kor", Country)| grepl("South S", Country) | grepl("Tai", Country)| grepl("U.S.", Country) | grepl("United S", Country))
+
+#Since we saw from the previous output that 5 countries didn't match from the 'diet2020' dataset due to alternative names, for this reason we will recode those names in the 'diet2020' dataset and merge again
+covidlife <- diet2020 %>%  mutate(Country_rev = recode(Country, 
+                               'Iran (Islamic Republic of)' = 'Iran', #Replaced the name United Kingdom with UK here
+                               'Korea, South' = 'South Korea', 
+                               'Russian Federation' = 'Russia', 
+                               'United States of America' = 'United States',
+                               'Taiwan*'= 'Taiwan')) %>% inner_join(yearlytests2020, by=c("Country_rev"="Entity")) %>% select(-Country_rev)
+
+
+#Then join the merged dataset from above with the 'countryhealthstats' dataset to form the 'covid2020' dataset
+covid2020 <- countryhealthstats %>% inner_join(covidlife)
+
+#Determine the rows dropped from the 'covid2020' dataset when the merge was performed 
+covidlife %>% anti_join(countryhealthstats)
+
+#Check to see if these rows were dropped in error and if the 'countryhealthstats' did had the same country names spelled differently or an alternate name of the same country
+countryhealthstats %>% filter(grepl("Czech", Country) | grepl("Iran", Country) | grepl("Kor", Country) | grepl("Slovak", Country) | grepl("Taiw", Country) | grepl("United S", Country))
+
+#Since we saw from the previous output that 5 countries didn't match from the 'countryhealthstats' dataset due to alternative names, for this reason we will recode those names in the 'countryhealthstats' dataset and merge again
+covid2020 <- countryhealthstats %>%  mutate('Country Name'= recode(Country, 
+                               'Iran, Islamic Rep.' = 'Iran (Islamic Republic of)', 
+                               'Korea, Rep.' = 'Korea, South', 
+                               'Slovak Republic' = 'Slovakia',
+                               'Czech Republic'= 'Czechia',
+                               'United States' = 'United States of America')) %>% inner_join(covidlife, by=c("Country Name"="Country")) %>% select(-'Country Name')
+
+```
+
+*To merge the 3 datasets, the 'diet2020' dataset was first combined with the 'yearlytests2020' dataset to form the 'covidlife' dataset. When this was done, it was noticed that 11 rows were dropped from the 'yearlytests2020' dataset, the smaller of the two datasets which were merged. To ensure that these rows weren't just dropped in error because of alternative or misspelled country name in the 'diet2020' dataset, grepl was used with filter() to search for fragments of the country names of the dropped rows. By doing this search, it was found that 5 rows were dropped because of an alternative name for the same country. For this reason, we recoded the country names in one of the datasets and performed the merge again. This time instead of 11 rows being dropped from the 'yearlytests2020' dataset, only 6 rows were dropped from the 'yearlytests2020' dataset since these countries did not have a match in the 'diet2020' dataset. Once the 'covidlife' dataset was created, this dataset was merged again with the third dataset 'countryhealthstats'to create the dataset 'covid2020'. This time 6 rows were dropped from the merged dataset, and the same process of checking if the rows were dropped in error was performed. It was found that 5 of those rows were dropped because of an alternative name for the same country. For this reason once again, we recoded the country names in one of the datasets and performed the merge again to get our final dataset 'covid2020' which has 107 observations. Overall, 7 observations were dropped from the smallest dataset when it was merged with the other two datasets and these observations did not have matches in the other two datasets even after alternative and misspelled names were checked for.*
+
+
+## Data Wrangling with the merged dataset 'covid2020'
+```{r warning = FALSE}
+# Take a quick look at the first 10 rows of the 'covid2020' dataset using a 'kable' table
+knitr::kable(head(covid2020, 10), col.names = gsub("[.]", "  ", names(covid2020)), align = "lccccccccccccccc")
+
+#Create a new variable called 'positivityrate' which is a function of COVID-confirmed percentage of population, the population, and the total yearly tests
+covid2020 <- covid2020 %>% mutate(positivityrate = (( `Confirmed%`/100)*Population*100)/(total_yearly_tests))
+
+#Find the mean of this new variable 'positivityrate'
+mean(covid2020$positivityrate, na.rm=T)
+#Find the standard deviation of this new variable 'positivityrate'
+sd(covid2020$positivityrate, na.rm=T)
+
+#Find the mean of 'Ages65above%'
+mean(covid2020$`Age65above%`, na.rm=T)
+#Find the standard deviation of 'Ages65above%'
+sd(covid2020$`Age65above%`, na.rm=T)
+
+#Find the mean of 'SanitationServices%'
+mean(covid2020$`SanitationServices%`, na.rm=T)
+#Find the standard deviation of 'SanitationServices%'
+sd(covid2020$`SanitationServices%`, na.rm=T)
+
+#Find the mean of 'Handwashingfacilities%'
+mean(covid2020$`Handwashingfacilities%`, na.rm=T)
+#Find the standard deviation of 'Handwashingfacilities%'
+sd(covid2020$`Handwashingfacilities%`, na.rm=T)
+
+
+# 'Undernourished' is listed as a categorical variable, take a look at its categories
+table(covid2020$Undernourished)
+
+#So it seems as though the values given are actually numeric but the variable is listed as categorical, so first we will convert 'Undernourished' back to numeric. Take note that the value '>2.5' won't translate to numeric so it will have to be recoded as something else. Let's recode it '>2.5' as '2' temporarily 
+covid2020 <- covid2020 %>% mutate(Undernourished_recoded = recode(Undernourished, '<2.5' = '2')) %>% select(-Undernourished)
+
+#Now turn 'Undernourished_recoded' into a numeric variable from the previous question and arrange in ascending order (Notice: using as.integer will round to the nearest whole number place)
+covid2020<- covid2020 %>% mutate(Undernourished_numeric = as.integer(Undernourished_recoded)) %>% select(-Undernourished_recoded) %>% arrange(Undernourished_numeric)
+
+#Now turn 'Undernourished_numeric' back into a categorical variable using case_when() to set the category cut-offs
+covid2020 <- covid2020 %>%  mutate(UndernourishedCategories=case_when(
+    Undernourished_numeric %in% 2 ~ "< 2.5 %",
+    Undernourished_numeric %in% 3:100 ~ " > 2.5 %"
+  )) %>% select(-Undernourished_numeric) 
+
+#Determine the frequency of each category in 'UndernourishedCategories' in this dataset
+covid2020 %>% group_by(UndernourishedCategories) %>%  summarize(Frequency=n()) %>% filter(UndernourishedCategories!="NA")
+
+#Turn 'Obesity' into a categorical variable using case_when() to set the category cut-offs
+covid2020 <- covid2020 %>%  mutate(ObesityCategories=case_when(
+     Obesity  > 23   ~ "> 23 %", 
+     Obesity <= 23 ~ "0-23 %"
+  )) %>% select(-Obesity) 
+
+# Determine the frequency of each category in 'ObesityCategories' in this dataset
+covid2020 %>% group_by(ObesityCategories) %>%  summarize(Frequency=n()) %>% filter(ObesityCategories!="NA")
+
+
+
+```
+
+*We had a look at the first 10 rows in the 'covid2020' dataset with the kable function. Then, we mutated and overwrote our covid2020 dataset to create a positivity rate variable which was found by multiplying the percentage of confirmed cases and the population and dividing by the total yearly amount of tests. By using the mean function we found the mean positivity rate for all countries in this dataset to be about 0.2352% and the standard deviation to be about 0.5401%. The mean percentage of people in each country over the age of 65 was about 11.7313% and the standard deviation was about 6.9457%. The mean percentage of people in each country having access to sanitation services in each country was about 83.5791% and the standard deviation was about 24.1945%. Also, the mean percentage of people in each country having access to hand washing facilities was about 56.3402% and the standard deviation was about 31.1444%. The obesity rate and the undernourishment rate were made into categorical variables and summary statistics (frequencies) were computed for them. The countries in the covid2020 dataset were divided between less than or greater than 2.5% undernourishment with 59 countries having greater than 2.5% undernourishment and 47 countries having less than 2.5% undernourishment. The countries were also divided by having greater or less than a 23% obesity rate with 53 countries having an obesity rate greater than 23% while 54 countries had an obesity rate less than 23%.*
+
+## First data visualization with the 'covid2020' dataset
+```{r warning = FALSE}
+#Call the package "ggpubr"
+library(ggpubr)
+
+#Plot the percentage of population dead because of COVID-19 and the percentage of confirmed COVID-19 cases against the percentage of population that is ages 65 and above for different countries around the world
+covid2020 %>% ggplot(aes(x= `Age65above%`, y= `Death%`)) + geom_point(aes(color=`Confirmed%`)) + scale_colour_continuous("% of Population with confirmed COVID-19 cases", type = "viridis")  + scale_y_continuous(breaks=c(0, 0.025, 0.05, 0.075, 0.1, 0.125, 0.15, 0.175))+ scale_x_continuous(breaks=c(0, 5, 10, 15, 20, 25)) + geom_smooth(method=lm, se=FALSE) + labs(title= "Population COVID death rate and confirmed case rate vs. % of population composed of ages 65+", y="Percentage of the population dead due to COVID (%)", x="Percentage of population that is 65 years or older (%)") + theme(plot.title = element_text(size=10, face="bold"),axis.title=element_text(size=9), legend.position="bottom") + stat_cor(method = "pearson", label.x = 22, label.y = 0.045, r.accuracy = 0.001) + stat_cor(aes(x= `Age65above%`, y=`Confirmed%`), label.x = 22, label.y = 0.03, r.accuracy = 0.001 ) 
+```
+
+*This scatterplot of the 'covid2020' dataset depicts the relationship between the percentage of the population dead due to COVID, seen on the y axis, and the percentage of the population over the age of 65, seen on the x axis. Each country is represented by a point with a different color determined by the percentage of its population with confirmed covid-19 cases. As seen by a p-value of less than 0.05 and the correlation coefficient of 0.562, there is a significant positive correlation between the percentage of population dead due to COVID-19 and the percentage of a country's population over the age of 65. As seen by a p-value of less than 0.05 and the correlation coefficient of 0.557, there is a significant positive correlation between the percentage of population with confirmed COVID-19 cases and the percentage of a country's population over the age of 65. This is concerning for countries with higher percentages of elderly people as that to be associated with more COVID-19 positive cases and deaths.*
+
+## Second data visualization with the 'covid2020' dataset
+
+```{r warning = FALSE}
+#Plot the COVID-19 positivity rate for different categories of Undernourished and Obese countries around the world
+covid2020[!is.na(covid2020$ObesityCategories) & !is.na(covid2020$UndernourishedCategories),] %>% ggplot(aes(x = UndernourishedCategories, y=positivityrate, fill = ObesityCategories)) +
+  geom_bar(stat = "summary", fun = "mean", position="dodge") +geom_errorbar(stat = "summary", width=0.2,  fun.data = "mean_se", position= position_dodge(0.9)) + scale_fill_manual(values=c("#56B4E9", "#009E73"), labels=c('Greater than 23% Obesity rate', 'Less than 23% Obesity rate'), "Categories of Obese Countries") + labs(title= "Percentage of ", y="Percentage of the population dead due to COVID (%)", x="Percentage of population that is 65 years or older (%)") + labs(title="COVID-19 positivity rate in respect to obesity and undernourishment for different countries", x="Different Categories of Undernourished Countries", y= "COVID-19 Positivity Rate (%)") +  theme(plot.title = element_text(size=10, face="bold"), axis.text=element_text(size=8)) + scale_y_continuous(breaks=c(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9)) + scale_x_discrete(labels = c('Greater than 2.5 % Undernourished', 'Less than 2.5 % Undernourished'))
+
+```
+
+
+*This bar graph displays the relationship between COVID-19 positivity rate, undernourishment, and obesity rate. Countries were divided between greater or less than 2.5% undernourishment rate and having an obesity rate greater or less than 23%. Each bar represents the mean COVID-19 positivity rate for the countries under the specified conditions. As seen from the bar graph, the positivity rate for countries with greater than 2.5% undernourishment and greater than 23% obesity rate was drastically higher than the other groups demonstrating that lack of nourishment and higher obesity rates are correlated to COVID-19 positivity rates. However, the significance of this correlation can not be determined without further testing. *
+
+
+## Member Contributions
+*Introduction: Hriman and Nicholas*
+
+*Tidying: Hriman*
+
+*Joining and Merging: Hriman and Nicholas*
+
+*Wrangling: Nicholas*
+
+*Graphs: Hriman and Nicholas*
+
+
+## References
+*'Health Nutrition and Population Statistics' (HealthStats.csv): [Website Link](https://databank.worldbank.org/source/health-nutrition-and-population-statistics)*
+
+*Context: This dataset was obtained from World Bank, and this dataset contained many population and health statistics for countries around the world.*
+
+
+*'diet2020' (Food_Supply_kcal_Data.csv):  [Website Link](https://www.kaggle.com/datasets/mariaren/covid19-healthy-diet-dataset)*
+
+*Context: This dataset was obtained from Kaggle, and this dataset contained many dietary intake variables, health conditions associated with nutrition, and COVID-19 related data for countries around the world.*
+
+
+*'totaltests' (total-tests-for-covid-19.csv):  [Website Link](https://ourworldindata.org/grapher/full-list-total-tests-for-covid-19?time=latest)*
+
+*Context: This dataset was obtained from the Our World in Data website and contained the total COVID-19 tests conducted daily in many countries around the world*
+
